@@ -41,7 +41,7 @@ local function congratulatePlayer(playerName)
   if now - lastPlayerMessage < playerCooldown then return end
 
   local msg = string.format(messages[random(#messages)], playerName)
-  SendChatMessage(msg, "SAY")
+  SendChatMessage(msg, "GUILD")
 
   lastGlobalMessage = now
   playerCooldowns[playerName] = now
