@@ -1,0 +1,5 @@
+## Title: AutoGZ
+## Notes: Sagt automatisch GG im Gildenchat bei Erfolgen
+## SavedVariables: AutoGZDB
+## IconTexture: 236669
+AutoGZ.lua
