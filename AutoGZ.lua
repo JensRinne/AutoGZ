@@ -1,4 +1,6 @@
--- Default-Konfiguration
+-- AutoGZ v3 – Kombinierte Erkennung über Chat-Filter und Guild-News
+
+-- Standard-Konfiguration
 local defaultMessages = {
   "GZ %s! Und jetzt ab zur Weltherrschaft!",
   "Na endlich %s! Schon gedacht, du schaffst das nie ;)",
@@ -13,119 +15,138 @@ local defaultMessages = {
   "GZ, du gottgleiche Legende!",
   "Komm, gib's zu - das war aus Versehen. GZ ;)",
   "GZ %s, du bist eine Maschine!",
-  "Ehre wem Ehre gebührt - stark gemacht, %s!",
+  "Ehre wem Ehre gebührt – stark gemacht, %s!",
   "Boom! %s schlägt wieder zu!",
-  "GG %s - epischer Erfolg!",
+  "GG %s – epischer Erfolg!",
   "%s, du hast den Titel 'Legende' verdient!",
   "Alle mal klatschen für %s! 👏",
   "%s hat's geschafft! Und wir feiern mit!",
 }
 
--- Lokale Variablen (werden später aus DB geladen)
-local messages = defaultMessages
+-- Lokale Variablen
+local messages       = defaultMessages
 local globalCooldown = 10
 local playerCooldown = 120
-local lastGlobalMessage = 0
-local playerCooldowns = {}
-local AutoGZ_Enabled = true
-local AutoGZ_Initialized = false -- 🛡️ Schutz gegen doppelte Initialisierung
+local lastGlobalTime = 0
+local playerLastTime = {}
+local Enabled        = true
+local Initialized    = false
+local lastNewsIndex  = 0
 
--- Hauptfunktion
-local function congratulatePlayer(playerName)
-  if not AutoGZ_Enabled then return end
+-- Funktion: GZ senden
+local function Congratulate(playerName)
+  if not Enabled then return end
   local now = GetTime()
   if playerName == UnitName("player") then return end
+  if now - lastGlobalTime < globalCooldown then return end
+  if now - (playerLastTime[playerName] or 0) < playerCooldown then return end
 
-  if now - lastGlobalMessage < globalCooldown then return end
-  local lastPlayerMessage = playerCooldowns[playerName] or 0
-  if now - lastPlayerMessage < playerCooldown then return end
+  local text = string.format(messages[random(#messages)], playerName)
+  SendChatMessage(text, "GUILD")
 
-  local msg = string.format(messages[random(#messages)], playerName)
-  SendChatMessage(msg, "GUILD")
-
-  lastGlobalMessage = now
-  playerCooldowns[playerName] = now
+  lastGlobalTime = now
+  playerLastTime[playerName] = now
 end
 
--- Event-Handling
-local frame = CreateFrame("FRAME")
-frame:RegisterEvent("ADDON_LOADED")
-frame:RegisterEvent("ACHIEVEMENT_EARNED")
+-- Prüfen, ob Name in Gilde
+local function InGuild(name)
+  if not IsInGuild() then return false end
+  for i = 1, GetNumGuildMembers() do
+    local n = GetGuildRosterInfo(i)
+    if n and n:match("([^%-]+)") == name then return true end
+  end
+  return false
+end
 
-frame:SetScript("OnEvent", function(self, event, arg1, arg2)
-  if event == "ADDON_LOADED" and not AutoGZ_Initialized then
-    AutoGZ_Initialized = true
+-- Chat-Filter zum Abfangen von Achievement-Messages
+local function AchievementFilter(self, event, msg, author, ...)
+  local name
+  if event == "CHAT_MSG_SYSTEM" then
+    name = msg:match("^%[?([^%]%s]+)%]? hat den Erfolg")
+  else
+    name = author
+  end
+  if name then
+    name = name:match("([^%-]+)")
+    if name ~= UnitName("player") and InGuild(name) then
+      Congratulate(name)
+    end
+  end
+  return false
+end
 
-    AutoGZDB = AutoGZDB or {}
-    AutoGZDB.enabled = AutoGZDB.enabled ~= false
-    AutoGZDB.messages = AutoGZDB.messages or defaultMessages
-    AutoGZDB.globalCooldown = AutoGZDB.globalCooldown or 10
-    AutoGZDB.playerCooldown = AutoGZDB.playerCooldown or 120
+ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", AchievementFilter)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD_ACHIEVEMENT", AchievementFilter)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_ACHIEVEMENT", AchievementFilter)
 
-    messages = AutoGZDB.messages
-    AutoGZ_Enabled = AutoGZDB.enabled
-    globalCooldown = AutoGZDB.globalCooldown
-    playerCooldown = AutoGZDB.playerCooldown
-
-    -- EINHEITLICHER SLASH-BEFEHL
-    SLASH_GZ1 = "/gz"
-    SlashCmdList["GZ"] = function(msg)
-      local args = {}
-      for word in string.gmatch(msg, "%S+") do
-        table.insert(args, word)
-      end
-
-      local command = string.lower(args[1] or "")
-
-      if command == "test" then
-        local name = args[2] or "Testspieler"
-        congratulatePlayer(name)
-
-      elseif command == "toggle" then
-        AutoGZ_Enabled = not AutoGZ_Enabled
-        AutoGZDB.enabled = AutoGZ_Enabled
-        local status = AutoGZ_Enabled and "|cff00ff00aktiviert|r" or "|cffff0000deaktiviert|r"
-        print("AutoGZ ist jetzt " .. status .. ".")
-
-      elseif command == "cooldown" then
-        local sub = string.lower(args[2] or "")
-        local value = tonumber(args[3])
-
-        if sub == "global" and value then
-          globalCooldown = value
-          AutoGZDB.globalCooldown = value
-          print("Globaler Cooldown auf " .. value .. " Sekunden gesetzt.")
-
-        elseif sub == "player" and value then
-          playerCooldown = value
-          AutoGZDB.playerCooldown = value
-          print("Spieler-Cooldown auf " .. value .. " Sekunden gesetzt.")
-
-        else
-          print("Aktuelle Cooldowns:")
-          print("- Global: " .. globalCooldown .. " Sekunden")
-          print("- Spieler: " .. playerCooldown .. " Sekunden")
-          print("Verwendung: /gz cooldown [global|player] [Sekunden]")
-        end
-
-      else
-        print("|cff00ff00AutoGZ – Befehlsübersicht:|r")
-        print("/gz test [Name] – Testet die Ausgabe mit optionalem Namen.")
-        print("/gz toggle – Aktiviert/Deaktiviert die automatische Ausgabe.")
-        print("/gz cooldown – Zeigt aktuelle Cooldowns.")
-        print("/gz cooldown global [Sek] – Setzt globalen Cooldown.")
-        print("/gz cooldown player [Sek] – Setzt Spieler-Cooldown.")
-        print("/gz help – Zeigt diese Hilfe an (oder einfach nur /gz).")
+-- Guild-News-Feed-Prüfung
+local function CheckGuildAchievements()
+  local total = C_GuildInfo.GetNumGuildNews()
+  for i = lastNewsIndex + 1, total do
+    local news = C_GuildInfo.GetGuildNewsInfo(i)
+    if news.newsType == Enum.GuildNewsType.Achievement then
+      local who = news.playerName:match("([^%-]+)")
+      if InGuild(who) then
+        Congratulate(who)
       end
     end
-
-    print("AutoGZ geladen – Status: " .. (AutoGZ_Enabled and "|cff00ff00aktiviert|r" or "|cffff0000deaktiviert|r"))
   end
+  lastNewsIndex = total
+end
 
-  if event == "ACHIEVEMENT_EARNED" then
-    if not AutoGZ_Enabled then return end
-    local info = arg2 and C_PlayerInfo.GetPlayerInfoByGUID(arg2)
-    if not info then return end
-    congratulatePlayer(info.name)
+-- Slash-Befehl /gz
+SLASH_GZ1 = "/gz"
+SlashCmdList["GZ"] = function(msg)
+  local args = {}
+  for w in msg:gmatch("%S+") do table.insert(args, w) end
+  local cmd = (args[1] or ""):lower()
+  if cmd == "test" then
+    Congratulate(args[2] or "Testspieler")
+  elseif cmd == "toggle" then
+    Enabled = not Enabled
+    print("AutoGZ ist jetzt " .. (Enabled and "|cff00ff00aktiviert|r" or "|cffff0000deaktiviert|r"))
+  elseif cmd == "cooldown" then
+    local sub = args[2] and args[2]:lower()
+    local val = tonumber(args[3])
+    if sub == "global" and val then
+      globalCooldown = val
+      AutoGZDB.globalCooldown = val
+      print("Globaler Cooldown auf " .. val .. " Sek. gesetzt.")
+    elseif sub == "player" and val then
+      playerCooldown = val
+      AutoGZDB.playerCooldown = val
+      print("Spieler-Cooldown auf " .. val .. " Sek. gesetzt.")
+    else
+      print("/gz cooldown [global|player] [Sekunden]")
+    end
+  else
+    print("|cff00ff00AutoGZ Befehle:|r")
+    print("/gz test [Name]")
+    print("/gz toggle")
+    print("/gz cooldown [global|player] [Sekunden]")
+  end
+end
+
+-- Frame & Events
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("ADDON_LOADED")
+frame:RegisterEvent("GUILD_NEWS_UPDATE")
+
+frame:SetScript("OnEvent", function(self, event, ...)
+  if event == "ADDON_LOADED" and not Initialized then
+    Initialized = true
+    AutoGZDB       = AutoGZDB or {}
+    Enabled        = AutoGZDB.enabled        ~= false
+    messages       = AutoGZDB.messages       or defaultMessages
+    globalCooldown = AutoGZDB.globalCooldown or 10
+    playerCooldown = AutoGZDB.playerCooldown or 120
+
+    -- Guild-News anfordern und Index setzen
+    C_GuildInfo.RequestGuildNews()
+    lastNewsIndex = C_GuildInfo.GetNumGuildNews()
+
+    print("AutoGZ geladen – Status: " .. (Enabled and "|cff00ff00aktiviert|r" or "|cffff0000deaktiviert|r"))
+  elseif event == "GUILD_NEWS_UPDATE" then
+    CheckGuildAchievements()
   end
 end)
