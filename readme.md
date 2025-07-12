@@ -1,6 +1,6 @@
 # 🎉 AutoGZ – Automatische Erfolgsglückwünsche für World of Warcraft
 
-AutoGZ ist ein leichtgewichtiges Addon für World of Warcraft, das deinen Mitspieler:innen automatisch zu Erfolgen gratuliert – mit zufälligen, charmanten Sprüchen. Ideal für ein aktives Gildenleben ohne ständiges Tippen von "gz". test
+AutoGZ ist ein leichtgewichtiges Addon für World of Warcraft, das deinen Mitspieler:innen automatisch zu Erfolgen gratuliert – mit zufälligen, charmanten Sprüchen. Ideal für ein aktives Gildenleben ohne ständiges Tippen von "gz". test1
 
 ---
 
