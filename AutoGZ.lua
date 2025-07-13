@@ -98,13 +98,23 @@ end
 SLASH_GZ1 = "/gz"
 SlashCmdList["GZ"] = function(msg)
   local args = {}
-  for w in msg:gmatch("%S+") do table.insert(args, w) end
+  for w in msg:gmatch("%S+") do
+    table.insert(args, w)
+  end
   local cmd = (args[1] or ""):lower()
+
   if cmd == "test" then
-    Congratulate(args[2] or "Testspieler")
-  elseif cmd == "toggle" then
+    -- whisper an dich selbst, ohne Cooldown oder Gilden-Chat
+    local name = args[2] or UnitName("player")
+    local text = string.format(messages[random(#messages)], name)
+    SendChatMessage(text, "WHISPER", nil, UnitName("player"))
+    return
+  end
+
+  if cmd == "toggle" then
     Enabled = not Enabled
     print("AutoGZ ist jetzt " .. (Enabled and "|cff00ff00aktiviert|r" or "|cffff0000deaktiviert|r"))
+
   elseif cmd == "cooldown" then
     local sub = args[2] and args[2]:lower()
     local val = tonumber(args[3])
@@ -119,11 +129,12 @@ SlashCmdList["GZ"] = function(msg)
     else
       print("/gz cooldown [global|player] [Sekunden]")
     end
+
   else
     print("|cff00ff00AutoGZ Befehle:|r")
-    print("/gz test [Name]")
-    print("/gz toggle")
-    print("/gz cooldown [global|player] [Sekunden]")
+    print("/gz test [Name]      – Testausgabe per Whisper")
+    print("/gz toggle          – An/Aus")
+    print("/gz cooldown [..]   – Cooldowns setzen")
   end
 end
 
@@ -134,12 +145,12 @@ frame:RegisterEvent("GUILD_NEWS_UPDATE")
 
 frame:SetScript("OnEvent", function(self, event, ...)
   if event == "ADDON_LOADED" and not Initialized then
-    Initialized = true
-    AutoGZDB       = AutoGZDB or {}
-    Enabled        = AutoGZDB.enabled        ~= false
-    messages       = AutoGZDB.messages       or defaultMessages
-    globalCooldown = AutoGZDB.globalCooldown or 10
-    playerCooldown = AutoGZDB.playerCooldown or 120
+    Initialized       = true
+    AutoGZDB          = AutoGZDB or {}
+    Enabled           = AutoGZDB.enabled        ~= false
+    messages          = AutoGZDB.messages       or defaultMessages
+    globalCooldown    = AutoGZDB.globalCooldown or 10
+    playerCooldown    = AutoGZDB.playerCooldown or 120
 
     -- Guild-News anfordern und Index setzen
     C_GuildInfo.RequestGuildNews()

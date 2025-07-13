@@ -7,7 +7,7 @@ AutoGZ ist ein leichtgewichtiges Addon für World of Warcraft, das deinen Mitspi
 ## ✨ Features
 
 - Erkennt automatisch Erfolge anderer Spieler
-- Sendet zufällige Glückwunsch-Nachrichten im Gildenchat (oder im SAY-Chat für Tests)
+- Sendet zufällige Glückwunsch-Nachrichten im Gildenchat
 - Ignoriert eigene Erfolge (kein Self-GZ)
 - Globaler Cooldown & individueller Spieler-Cooldown
 - Slash-Befehle zum Testen, Deaktivieren & Konfigurieren
@@ -20,7 +20,7 @@ AutoGZ ist ein leichtgewichtiges Addon für World of Warcraft, das deinen Mitspi
 
 1. Repository herunterladen oder klonen:
    ```
-   git clone https://github.com/DEINUSERNAME/AutoGZ.git
+   git clone https://github.com/JensRinne/AutoGZ.git
    ```
 
 2. Den Ordner `AutoGZ` in das Verzeichnis kopieren:
@@ -37,7 +37,7 @@ AutoGZ ist ein leichtgewichtiges Addon für World of Warcraft, das deinen Mitspi
 | Befehl                      | Funktion                                                   |
 |-----------------------------|------------------------------------------------------------|
 | `/gz` oder `/gz help`       | Zeigt Hilfe/Übersicht an                                   |
-| `/gz test [Name]`           | Sendet Testnachricht an [Name] (respektiert Cooldowns)     |
+| `/gz test [Name]`           | Sendet Testnachricht per Whisper an [Name]                 |
 | `/gz toggle`                | Aktiviert oder deaktiviert automatische Ausgabe            |
 | `/gz cooldown`              | Zeigt aktuelle Cooldown-Werte                              |
 | `/gz cooldown global [X]`   | Setzt globalen Cooldown auf X Sekunden                     |
