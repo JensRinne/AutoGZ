@@ -1,4 +1,4 @@
--- AutoGZ v3 – Kombinierte Erkennung über Chat-Filter und Guild-News
+-- AutoGZ v3 – Kombinierte Erkennung über Chat-Filter und Guild-News 123
 
 -- Standard-Konfiguration
 local defaultMessages = {
