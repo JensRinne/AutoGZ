@@ -53,7 +53,7 @@ local function InGuild(name)
   if not IsInGuild() then return false end
   for i = 1, GetNumGuildMembers() do
     local n = GetGuildRosterInfo(i)
-    if n and n:match("([^%-]+)") == name then return true end
+    if n and n:match("([^%%-]+)") == name then return true end
   end
   return false
 end
@@ -67,7 +67,7 @@ local function AchievementFilter(self, event, msg, author, ...)
     name = author
   end
   if name then
-    name = name:match("([^%-]+)")
+    name = name:match("([^%%-]+)")
     if name ~= UnitName("player") and InGuild(name) then
       Congratulate(name)
     end
@@ -85,7 +85,7 @@ local function CheckGuildAchievements()
   for i = lastNewsIndex + 1, total do
     local news = C_GuildInfo.GetGuildNewsInfo(i)
     if news.newsType == Enum.GuildNewsType.Achievement then
-      local who = news.playerName:match("([^%-]+)")
+      local who = news.playerName:match("([^%%-]+)")
       if InGuild(who) then
         Congratulate(who)
       end
@@ -104,7 +104,7 @@ SlashCmdList["GZ"] = function(msg)
   local cmd = (args[1] or ""):lower()
 
   if cmd == "test" then
-    -- whisper an dich selbst, ohne Cooldown oder Gilden-Chat
+    -- Testmodus: flüstern an dich selbst, ohne Cooldown oder Gilden-Chat
     local name = args[2] or UnitName("player")
     local text = string.format(messages[random(#messages)], name)
     SendChatMessage(text, "WHISPER", nil, UnitName("player"))
@@ -113,7 +113,9 @@ SlashCmdList["GZ"] = function(msg)
 
   if cmd == "toggle" then
     Enabled = not Enabled
+    AutoGZDB.enabled = Enabled
     print("AutoGZ ist jetzt " .. (Enabled and "|cff00ff00aktiviert|r" or "|cffff0000deaktiviert|r"))
+    return
 
   elseif cmd == "cooldown" then
     local sub = args[2] and args[2]:lower()
@@ -129,12 +131,51 @@ SlashCmdList["GZ"] = function(msg)
     else
       print("/gz cooldown [global|player] [Sekunden]")
     end
+    return
+
+  elseif cmd == "add" then
+    -- /gz add <Text>
+    local text = table.concat(args, " ", 2)
+    if text ~= "" then
+      table.insert(messages, text)
+      AutoGZDB.messages = messages
+      print("Neuer Spruch (#" .. #messages .. "): " .. text)
+    else
+      print("Verwendung: /gz add <Text>")
+    end
+    return
+
+  elseif cmd == "remove" then
+    -- /gz remove <Index>
+    local idx = tonumber(args[2])
+    if idx and messages[idx] then
+      local old = messages[idx]
+      table.remove(messages, idx)
+      AutoGZDB.messages = messages
+      print("Spruch #" .. idx .. " entfernt: " .. old)
+    else
+      print("Ungültiger Index. Nutze /gz list, um die Nummern zu sehen.")
+    end
+    return
+
+  elseif cmd == "list" then
+    -- /gz list
+    print("|cff00ff00Aktuelle GZ‑Sprüche:|r")
+    for i, v in ipairs(messages) do
+      print(i .. ". " .. v)
+    end
+    return
 
   else
+    -- Hilfe
     print("|cff00ff00AutoGZ Befehle:|r")
     print("/gz test [Name]      – Testausgabe per Whisper")
     print("/gz toggle          – An/Aus")
     print("/gz cooldown [..]   – Cooldowns setzen")
+    print("/gz add <Text>      – Neuen Spruch hinzufügen")
+    print("/gz remove <Index>  – Spruch löschen")
+    print("/gz list            – Alle Sprüche auflisten")
+    return
   end
 end
 
