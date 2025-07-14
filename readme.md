@@ -1,60 +1,68 @@
 # 🎉 AutoGZ – Automatische Erfolgsglückwünsche für World of Warcraft
 
-AutoGZ ist ein leichtgewichtiges Addon für World of Warcraft, das deinen Mitspieler:innen automatisch zu Erfolgen gratuliert – mit zufälligen, charmanten Sprüchen. Ideal für ein aktives Gildenleben ohne ständiges Tippen von "gz".
+AutoGZ ist ein leichtgewichtiges Addon für World of Warcraft, das deinen Mitspieler:innen automatisch zu Erfolgen gratuliert – mit zufälligen, charmanten Sprüchen. Ideal für ein aktives Gildenleben ohne ständiges Tippen von „gz“.
 
 ---
 
 ## ✨ Features
 
-- Erkennt automatisch Erfolge anderer Spieler
-- Sendet zufällige Glückwunsch-Nachrichten im Gildenchat
-- Ignoriert eigene Erfolge (kein Self-GZ)
-- Globaler Cooldown & individueller Spieler-Cooldown
-- Slash-Befehle zum Testen, Deaktivieren & Konfigurieren
-- Einstellungen werden dauerhaft gespeichert
-- Unterstützt Icon-Anzeige in der Addon-Liste
+- Erkennt automatisch Erfolge anderer Spieler (Retail über Guild-News-Feed & Chat-Filter)  
+- Sendet zufällige Glückwunsch-Nachrichten im Gildenchat  
+- Ignoriert eigene Erfolge  
+- Globaler und individueller Spieler-Cooldown  
+- Slash-Befehle zum Testen, Deaktivieren, Konfigurieren und Verwalten eigener Sprüche  
+- Einstellungen und benutzerdefinierte Sprüche werden dauerhaft gespeichert  
+- Unterstützt Icon-Anzeige in der Addon-Liste  
 
 ---
 
 ## 🧩 Installation
 
-1. Repository herunterladen oder klonen:
-   ```
+1. Repository klonen:  
+   ```bash
    git clone https://github.com/JensRinne/AutoGZ.git
    ```
-
-2. Den Ordner `AutoGZ` in das Verzeichnis kopieren:
-   ```
-   World of Warcraft\_retail_\Interface\AddOns\
-   ```
-
-3. Spiel neu starten oder `/reload` im Chat eingeben.
+2. Ordner `AutoGZ` nach  
+   `World of Warcraft/_retail_/Interface/AddOns/` verschieben.  
+3. Spiel neu starten oder `/reload` eingeben.  
 
 ---
 
 ## ⚙️ Slash-Befehle
 
-| Befehl                      | Funktion                                                   |
-|-----------------------------|------------------------------------------------------------|
-| `/gz` oder `/gz help`       | Zeigt Hilfe/Übersicht an                                   |
-| `/gz test [Name]`           | Sendet Testnachricht per Whisper an [Name]                 |
-| `/gz toggle`                | Aktiviert oder deaktiviert automatische Ausgabe            |
-| `/gz cooldown`              | Zeigt aktuelle Cooldown-Werte                              |
-| `/gz cooldown global [X]`   | Setzt globalen Cooldown auf X Sekunden                     |
-| `/gz cooldown player [X]`   | Setzt Spieler-Cooldown auf X Sekunden                      |
+| Befehl                      | Beschreibung                                                        |
+|-----------------------------|---------------------------------------------------------------------|
+| `/gz` oder `/gz help`       | Hilfe anzeigen                                                      |
+| `/gz test [Name]`           | Testnachricht per Whisper an dich selbst                            |
+| `/gz toggle`                | AutoGZ aktivieren/deaktivieren                                      |
+| `/gz cooldown`              | Aktuelle Cooldowns anzeigen                                         |
+| `/gz cooldown global [X]`   | Globalen Cooldown auf X Sekunden setzen                             |
+| `/gz cooldown player [X]`   | Spieler-Cooldown auf X Sekunden setzen                              |
+| `/gz add <Text>`            | Neuen Spruch hinzufügen                                             |
+| `/gz remove <Index>`        | Spruch mit Index löschen                                            |
+| `/gz list`                  | Alle Sprüche mit Index auflisten                                    |
+
+---
+
+## 🛠️ Sprüche verwalten
+
+- **Hinzufügen:** `/gz add Herzlichen Glückwunsch, %s – weiter so!`  
+- **Auflisten:** `/gz list`  
+- **Entfernen:** `/gz remove 3`  
 
 ---
 
 ## 🖼️ Icon
 
-Falls du ein `.tga`-Icon verwenden willst:
-- Speichere die Datei im Addon-Ordner als `icon.tga`
-- Füge in der `.toc`-Datei hinzu:
-  ```
-  ## IconTexture: icon.tga
-  ```
-
-Alternativ kann eine Icon-ID aus WoW verwendet werden (z. B. `## IconTexture: 236697`).
+1. Lege `icon.tga` in den Addon-Ordner.  
+2. In der `.toc` einfügen:  
+   ```
+   ## IconTexture: icon.tga
+   ```  
+Oder mit Icon-ID:
+```
+## IconTexture: 236697
+```
 
 ---
 
@@ -66,5 +74,4 @@ MIT License – frei verwendbar, änderbar, teilbar.
 
 ## 🙌 Mitwirken
 
-Spruchideen, Verbesserungsvorschläge oder Pull Requests? Her damit!  
-Gemeinsam machen wir Azeroth ein kleines bisschen netter.
+Spruchideen, Verbesserungsvorschläge oder Pull Requests willkommen!
